@@ -17,6 +17,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private List<ConversationMessage> conversationB = new ArrayList<>();
     private List<ConversationMessage> conversationC = new ArrayList<>();
 
+    private static final String GROUP_A = "GROUP_A";
+    private static final String GROUP_B = "GROUP_B";
+
     private int mGroupId = 1000;
 
     @Override
@@ -27,32 +30,46 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setSupportActionBar(toolbar);
 
         findViewById(R.id.singleNotification).setOnClickListener(this);
+        findViewById(R.id.singleNotificationWithGroup).setOnClickListener(this);
         findViewById(R.id.emptyBundleNotification).setOnClickListener(this);
         findViewById(R.id.bundleNotification).setOnClickListener(this);
         findViewById(R.id.styledNotification).setOnClickListener(this);
         findViewById(R.id.customViewNotification).setOnClickListener(this);
-
+        findViewById(R.id.multiGroupNotification).setOnClickListener(this);
         setupConversationMessages();
     }
 
-    private void sendNotification() {
+    private void sendNotification(String group) {
         ConversationMessage message = new ConversationMessage(mGroupId++, mGroupId, "Hello " + mGroupId, "", true);
-        NotificationCenter.showNotification(getApplicationContext(), message);
+        NotificationCenter.showNotification(getApplicationContext(), message, group);
     }
 
     private void sendBundleNotification() {
-        NotificationCenter.showSummaryNotification(getApplicationContext(), conversationB);
+        NotificationCenter.showSummaryNotification(getApplicationContext(), conversationB, true, GROUP_A);
         for (ConversationMessage message : conversationB) {
-            NotificationCenter.showNotification(getApplicationContext(), message);
+            NotificationCenter.showNotification(getApplicationContext(), message, GROUP_A);
         }
     }
 
     private void sendEmptyBundleNotification() {
-        NotificationCenter.showSummaryNotification(getApplicationContext(), conversationC);
+        NotificationCenter.showSummaryNotification(getApplicationContext(), conversationC, true, "messaging");
     }
 
     private void sendStyledNotification() {
-        NotificationCenter.showStyledMessagingNotification(getApplicationContext(), conversationB);
+        NotificationCenter.showStyledMessagingNotification(getApplicationContext(), conversationB, GROUP_A);
+    }
+
+    private void multiGroupNotification() {
+
+        NotificationCenter.showSummaryNotification(getApplicationContext(), conversationB, true, GROUP_A);
+        for (ConversationMessage message : conversationB) {
+            NotificationCenter.showNotification(getApplicationContext(), message, GROUP_A);
+        }
+
+        NotificationCenter.showSummaryNotification(getApplicationContext(), conversationC, true, GROUP_B);
+        for (ConversationMessage message : conversationC) {
+            NotificationCenter.showNotification(getApplicationContext(), message, GROUP_B);
+        }
     }
 
     private void sendCustomViewNotification() {
@@ -82,10 +99,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.singleNotification:
-                sendNotification();
+                sendNotification(null);
+                break;
+            case R.id.singleNotificationWithGroup:
+                sendNotification(GROUP_A);
                 break;
             case R.id.bundleNotification:
                 sendBundleNotification();
+                break;
+            case R.id.multiGroupNotification:
+                multiGroupNotification();
                 break;
             case R.id.emptyBundleNotification:
                 sendEmptyBundleNotification();

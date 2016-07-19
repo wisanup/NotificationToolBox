@@ -17,6 +17,7 @@ public class RemoteInputReceiver extends BroadcastReceiver {
         Bundle results = RemoteInput.getResultsFromIntent(intent);
         if (results != null) {
             CharSequence quickReplyResult = results.getCharSequence(KEY_QUICK_REPLY_TEXT);
+            //TODO consume the result then do something
         }
     }
 }

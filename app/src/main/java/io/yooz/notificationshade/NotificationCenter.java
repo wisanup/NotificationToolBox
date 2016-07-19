@@ -15,45 +15,59 @@ public class NotificationCenter {
 
     private static final String NOTIFICATION_GROUP = "messaging";
 
-    public static void showSummaryNotification(Context context, List<ConversationMessage> messages) {
-        Notification notification = new Notification.Builder(context)
+    public static void showSummaryNotification(Context context, List<ConversationMessage> messages, boolean useStyle, String group) {
+        Notification.Builder builder = new Notification.Builder(context)
                 .setSmallIcon(Icon.createWithResource(context, R.mipmap.ic_launcher))
-                .setLargeIcon(Icon.createWithResource(context, R.mipmap.ic_launcher))
-                .setGroup(NOTIFICATION_GROUP)
-                .setStyle(getMessageBoxStyleFromMessages(messages))
-                .setGroupSummary(true)
-                .build();
+                .setLargeIcon(Icon.createWithResource(context, R.drawable.ic_account_circle_black_48dp))
 
+                .setGroupSummary(true);
+
+        if (useStyle) {
+            builder.setStyle(getMessageBoxStyleFromMessages(messages));
+        }
+
+        if (group != null) {
+            builder.setGroup(group);
+        }
+
+        Notification notification = builder.build();
         NotificationManagerCompat notificationManager =  NotificationManagerCompat.from(context);
         notificationManager.notify(getNotificationId(messages), notification);
     }
 
-    public static void showNotification(Context context, ConversationMessage message) {
-        Notification notification = new Notification.Builder(context)
+    public static void showNotification(Context context, ConversationMessage message, String group) {
+        Notification.Builder builder = new Notification.Builder(context)
                 .setSmallIcon(Icon.createWithResource(context, R.mipmap.ic_launcher))
-                .setLargeIcon(Icon.createWithResource(context, R.mipmap.ic_launcher))
+                .setLargeIcon(Icon.createWithResource(context, R.drawable.ic_account_circle_black_48dp))
                 .setContentTitle(message.message)
-                .setSubText(message.from)
-                .setGroup(NOTIFICATION_GROUP)
-                .build();
+                .setSubText(message.from);
 
+        if (group != null) {
+            builder.setGroup(group);
+        }
+
+        Notification notification = builder.build();
         NotificationManagerCompat notificationManager =  NotificationManagerCompat.from(context);
         notificationManager.notify(getNotificationId(message), notification);
     }
 
-    public static void showStyledMessagingNotification(Context context, List<ConversationMessage> messages) {
+    public static void showStyledMessagingNotification(Context context, List<ConversationMessage> messages, String group) {
 
         // intent for handling actions
         Notification.Action action = getRemoteInputAction(context);
 
-        Notification notification = new Notification.Builder(context)
+        Notification.Builder builder = new Notification.Builder(context)
                 .setSmallIcon(Icon.createWithResource(context, R.mipmap.ic_launcher))
-                .setLargeIcon(Icon.createWithResource(context, R.mipmap.ic_launcher))
+                .setLargeIcon(Icon.createWithResource(context, R.drawable.ic_account_circle_black_48dp))
                 .setStyle(getMessageBoxStyleFromMessages(messages))
-                .addAction(action)
-                .setGroup(String.valueOf(messages.get(0).conversationId))
-                .build();
+                // Add quick reply action here
+                .addAction(action);
 
+        if (group != null) {
+            builder.setGroup(group);
+        }
+
+        Notification notification = builder.build();
         NotificationManagerCompat notificationManager =  NotificationManagerCompat.from(context);
         notificationManager.notify(getNotificationId(messages), notification);
     }
@@ -62,8 +76,9 @@ public class NotificationCenter {
 
         Notification notification = new Notification.Builder(context)
                 .setSmallIcon(Icon.createWithResource(context, R.mipmap.ic_launcher))
-                .setLargeIcon(Icon.createWithResource(context, R.mipmap.ic_launcher))
+                .setLargeIcon(Icon.createWithResource(context, R.drawable.ic_account_circle_black_48dp))
                 .setStyle(getMessageBoxStyleFromMessages(messages))
+                //TODO use proper RemoteViews
                 .setCustomContentView(new RemoteViews(context.getPackageName(), R.layout.activity_main))
                 .setStyle(new Notification.DecoratedCustomViewStyle())
                 .setGroup(String.valueOf(messages.get(0).conversationId))
@@ -78,13 +93,15 @@ public class NotificationCenter {
                 .setLabel("Quick Reply")
                 .build();
 
-        Notification.Action replyAction = new Notification.Action.Builder(Icon.createWithResource(context, R.drawable.ic_chat_bubble_white_24dp),
+        Notification.Action replyAction = new Notification.Action.Builder(Icon.createWithResource(context,
+                R.drawable.ic_chat_bubble_white_24dp),
                 "REPLY", getRemoteInputIntent(context))
                 .addRemoteInput(remoteInput)
                 .build();
-        return replyAction;
 
+        return replyAction;
     }
+
     private static Notification.Style getInboxStyleFromMessages(List<ConversationMessage> messages) {
         Notification.InboxStyle style = new Notification.InboxStyle()
                 .setBigContentTitle(messages.size() + " new messages")
